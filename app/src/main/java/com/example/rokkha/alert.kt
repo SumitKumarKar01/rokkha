@@ -50,7 +50,7 @@ class alert : AppCompatActivity() {
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
-                    val message = "I am in danger! Here's my location: https://www.google.com/maps/search/?api=1&query=${it.latitude},${it.longitude}"
+                    val message = "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${it.latitude},${it.longitude}"
                     val intent = Intent(Intent.ACTION_SENDTO).apply {
                         data = Uri.parse("smsto:${+8801990188461}") // Replace phoneNumber with the phone number of your contact
                         putExtra("sms_body", message)
