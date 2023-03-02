@@ -29,6 +29,11 @@ class alert : AppCompatActivity() {
                 getLocationAndSend()
             }
         }
+        val contact = findViewById<Button>(R.id.addcontact)
+        contact.setOnClickListener {
+            val intent = Intent(this, addcontacts::class.java)
+            startActivity(intent)
+        }
     }
     private fun getLocationAndSend() {
         if (ActivityCompat.checkSelfPermission(
