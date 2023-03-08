@@ -18,8 +18,9 @@
         android:theme="@style/Theme.Rokkha"
         tools:targetApi="31">
         <activity
-            android:name=".addcontacts"
+            android:name=".helper"
             android:exported="false" />
+
         <activity
             android:name=".alert"
             android:exported="false" />
