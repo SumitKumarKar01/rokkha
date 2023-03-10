@@ -10,12 +10,15 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-
+import android.provider.ContactsContract
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+import android.widget.AdapterView
+
 class helper : AppCompatActivity() {
     private lateinit var dataBase: SqliteDatabase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_helper)
@@ -23,8 +26,12 @@ class helper : AppCompatActivity() {
         val linearLayoutManager = LinearLayoutManager(this)
         contactView.layoutManager = linearLayoutManager
         contactView.setHasFixedSize(true)
-        dataBase = SqliteDatabase <Contacts>= dataBase.listContacts()
-        if (addContacts.size > 0) {
+        dataBase = SqliteDatabase(this)
+        val allContacts = dataBase.listContacts()
+
+        //dataBase = SqliteDatabase(this)
+       // ArrayList<Contacts>() allContacts = dataBase.listContacts()
+        if (allContacts.size > 0) {
             contactView.visibility = View.VISIBLE
             val mAdapter = ContactAdapter(this, allContacts)
             contactView.adapter = mAdapter

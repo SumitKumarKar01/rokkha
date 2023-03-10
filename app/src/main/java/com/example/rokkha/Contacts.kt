@@ -1,6 +1,6 @@
 package com.example.rokkha
 
-class Contacts {
+public class Contacts{
     var id = 0
     var name: String
     var phno: String
