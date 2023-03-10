@@ -6,7 +6,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
-import android.net.Uri
 import android.telephony.SmsManager
 import android.widget.Button
 import androidx.core.app.ActivityCompat
@@ -31,7 +30,7 @@ class alert : AppCompatActivity() {
         }
         val contact = findViewById<Button>(R.id.addcontact)
         contact.setOnClickListener {
-            val intent = Intent(this, helper::class.java)
+            val intent = Intent(this, Helper::class.java)
             startActivity(intent)
         }
     }
