@@ -10,13 +10,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import android.provider.ContactsContract
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-import android.widget.AdapterView
-
-class helper : AppCompatActivity() {
+class Helper : AppCompatActivity() {
     private lateinit var dataBase: SqliteDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +58,7 @@ class helper : AppCompatActivity() {
             val phoneNum = noField.text.toString()
             if (TextUtils.isEmpty(name)) {
                 Toast.makeText(
-                    this@helper,
+                    this@Helper,
                     "Something went wrong. Check your input values",
                     Toast.LENGTH_LONG
                 ).show()
@@ -73,7 +70,7 @@ class helper : AppCompatActivity() {
                 startActivity(intent)
             }
         }
-        builder.setNegativeButton("CANCEL") { _, _ -> Toast.makeText(this@helper, "Task cancelled",
+        builder.setNegativeButton("CANCEL") { _, _ -> Toast.makeText(this@Helper, "Task cancelled",
             Toast.LENGTH_LONG).show()}
         builder.show()
     }
