@@ -13,6 +13,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+import android.util.Log
+
+
 class Helper : AppCompatActivity() {
     private lateinit var dataBase: SqliteDatabase
 

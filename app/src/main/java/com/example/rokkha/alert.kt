@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.telephony.SmsManager
+import android.util.Log
 import android.widget.Button
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -34,6 +35,7 @@ class alert : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
     private fun getLocationAndSend() {
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -63,7 +65,11 @@ class alert : AppCompatActivity() {
                     startActivity(intent)*/
                     val message = "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${it.latitude},${it.longitude}"
                     val sms = this.getSystemService(SmsManager::class.java)
-                    sms.sendTextMessage("01571040586", "01732073478", message, null, null)
+                    var dataBase: SqliteDatabase = SqliteDatabase(this)
+                    val allContacts = dataBase.listContacts()
+                    for (contact in allContacts){
+                        sms.sendTextMessage("0"+contact.phno, "01732073478", message, null, null)
+                    }
 
                 }
             }
