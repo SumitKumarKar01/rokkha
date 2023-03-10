@@ -6,7 +6,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
-import android.net.Uri
+import android.telephony.SmsManager
 import android.widget.Button
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -27,6 +27,11 @@ class alert : AppCompatActivity() {
             } else {
                 getLocationAndSend()
             }
+        }
+        val contact = findViewById<Button>(R.id.addcontact)
+        contact.setOnClickListener {
+            val intent = Intent(this, Helper::class.java)
+            startActivity(intent)
         }
     }
     private fun getLocationAndSend() {
@@ -50,12 +55,16 @@ class alert : AppCompatActivity() {
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
-                    val message = "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${it.latitude},${it.longitude}"
+                    /*val message = "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${it.latitude},${it.longitude}"
                     val intent = Intent(Intent.ACTION_SENDTO).apply {
-                        data = Uri.parse("smsto:${+8801732073478}") // Replace phoneNumber with the phone number of your contact
+                        data = Uri.parse("smsto:${+8801990188461}") // Replace phoneNumber with the phone number of your contact
                         putExtra("sms_body", message)
                     }
-                    startActivity(intent)
+                    startActivity(intent)*/
+                    val message = "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${it.latitude},${it.longitude}"
+                    val sms = this.getSystemService(SmsManager::class.java)
+                    sms.sendTextMessage("01571040586", "01732073478", message, null, null)
+
                 }
             }
     }
