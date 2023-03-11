@@ -1,0 +1,21 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "release" ]
+  pull_request:
+    branches: [ "release" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Build Android App
+      uses: sparkfabrik/android-build-action@v1.3.4
+      with:
+        project-path: android
+        output-path: rokkha.apk
+        gradle-task: assembleDebug
+
