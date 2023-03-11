@@ -15,7 +15,7 @@ jobs:
     - name: Build Android App
       uses: sparkfabrik/android-build-action@v1.3.4
       with:
-        project-path: /
+        project-path: android
         output-path: rokkha.apk
         gradle-task: assembleDebug
 
