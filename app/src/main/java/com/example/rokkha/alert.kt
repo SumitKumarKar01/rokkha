@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.sqlite.SQLiteOpenHelper
 import android.location.Location
 import android.telephony.SmsManager
 import android.util.Log
@@ -14,9 +15,11 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
+
 class alert : AppCompatActivity() {
     private val MY_PERMISSIONS_REQUEST_LOCATION = 1
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alert)
