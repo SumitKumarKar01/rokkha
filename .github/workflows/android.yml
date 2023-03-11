@@ -18,4 +18,5 @@ jobs:
         project-path: ./
         output-path: rokkha.apk
         gradle-task: assembleDebug
+        fastlane-env: "debug"
 
