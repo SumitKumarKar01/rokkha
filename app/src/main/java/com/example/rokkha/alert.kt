@@ -10,10 +10,12 @@ import android.location.Location
 import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+
 
 
 class alert : AppCompatActivity() {
@@ -67,17 +69,23 @@ class alert : AppCompatActivity() {
                     }
                     startActivity(intent)*/
                     val message = "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${it.latitude},${it.longitude}"
-                    val sms = this.getSystemService(SmsManager::class.java)
+
                     var dataBase: SqliteDatabase = SqliteDatabase(this)
                     val allContacts = dataBase.listContacts()
                     for (contact in allContacts){
-                        sms.sendTextMessage("0"+contact.phno, "01732073478", message, null, null)
-                    }
+                        val sms = this.getSystemService(SmsManager::class.java)
+                        try {
+                        val sent = sms.sendTextMessage("0"+contact.phno, "01732073478", message, null, null)
+                        Toast.makeText(this, "Alert sent to "+contact.phno, Toast.LENGTH_SHORT).show();
+                    } catch (e: Exception) {
+                            Toast.makeText(this, "Message sent failed "+contact.name, Toast.LENGTH_SHORT).show();
+
+                     }
 
                 }
             }
     }
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             MY_PERMISSIONS_REQUEST_LOCATION -> {
@@ -93,4 +101,4 @@ class alert : AppCompatActivity() {
 
 
 
-}
+}}
