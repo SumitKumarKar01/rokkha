@@ -1,20 +1,26 @@
 package com.example.rokkha
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import android.Manifest
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.database.sqlite.SQLiteOpenHelper
 import android.location.Location
+import android.os.Build
+import android.os.Bundle
 import android.telephony.SmsManager
-import android.util.Log
 import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+
+
+
 
 
 
@@ -72,16 +78,46 @@ class alert : AppCompatActivity() {
 
                     var dataBase: SqliteDatabase = SqliteDatabase(this)
                     val allContacts = dataBase.listContacts()
+                    var smsMgr: SmsManager? = null
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                       smsMgr = this.getSystemService<SmsManager>(SmsManager::class.java)
+                    } else {
+                        smsMgr = SmsManager.getDefault()
+                    }
                     for (contact in allContacts){
-                        val sms = this.getSystemService(SmsManager::class.java)
-                        try {
+                      /*  try {
                         val sent = sms.sendTextMessage("0"+contact.phno, "01732073478", message, null, null)
                         Toast.makeText(this, "Alert sent to "+contact.phno, Toast.LENGTH_SHORT).show();
                     } catch (e: Exception) {
                             Toast.makeText(this, "Message sent failed "+contact.name, Toast.LENGTH_SHORT).show();
+                     }*/
+                        try{
+                        var SENT = "SMS_SENT"
+                        val sentPI = PendingIntent.getBroadcast(this, 0, Intent(SENT), 0)
+                        registerReceiver(object : BroadcastReceiver() {
+                            override fun onReceive(arg0: Context?, arg1: Intent?) {
+                                val resultCode = resultCode
+                                when (resultCode) {
+                                    RESULT_OK -> Toast.makeText(
+                                        baseContext,
+                                        "Alert sent to "+contact.name,
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    else -> Toast.makeText(
+                                        baseContext,
+                                        "Alert sent to "+contact.name + " error: "+resultCode,
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        }, IntentFilter(SENT))
 
-                     }
+                        smsMgr.sendTextMessage("0"+contact.phno, null, message, sentPI, null)
 
+                        } catch (e:Exception) {
+                            Toast.makeText(this, "$e!\nFailed to send SMS", Toast.LENGTH_LONG).show()
+                            e.printStackTrace()
+                        }
                 }
             }
     }
