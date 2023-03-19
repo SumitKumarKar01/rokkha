@@ -93,7 +93,7 @@ class alert : AppCompatActivity() {
                      }*/
                         try{
                         var SENT = "SMS_SENT"
-                        val sentPI = PendingIntent.getBroadcast(this, 0, Intent(SENT), 0)
+                        val sentPI = PendingIntent.getBroadcast(this, 0, Intent(SENT), PendingIntent.FLAG_IMMUTABLE)
                         registerReceiver(object : BroadcastReceiver() {
                             override fun onReceive(arg0: Context?, arg1: Intent?) {
                                 val resultCode = resultCode
@@ -105,7 +105,7 @@ class alert : AppCompatActivity() {
                                     ).show()
                                     else -> Toast.makeText(
                                         baseContext,
-                                        "Alert sent to "+contact.name + " error: "+resultCode,
+                                        "Failed to sent alert to "+contact.name + " error: "+resultCode,
                                         Toast.LENGTH_LONG
                                     ).show()
                                 }
