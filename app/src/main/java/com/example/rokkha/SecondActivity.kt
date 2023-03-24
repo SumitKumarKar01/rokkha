@@ -17,7 +17,7 @@ class SecondActivity : AppCompatActivity() {
         setContentView(binding.root)
         val proceedButton = findViewById<Button>(R.id.proceedbutton)
         proceedButton.setOnClickListener{
-            val Intent = Intent(this,alert::class.java)
+            val Intent = Intent(this,Alert::class.java)
             startActivity(Intent)
         }
         user = FirebaseAuth.getInstance()

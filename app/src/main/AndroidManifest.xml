@@ -20,9 +20,8 @@
         <activity
             android:name=".Helper"
             android:exported="false" />
-
         <activity
-            android:name=".alert"
+            android:name=".Alert"
             android:exported="false" />
         <activity
             android:name=".SecondActivity"
