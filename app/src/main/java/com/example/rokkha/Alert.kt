@@ -22,6 +22,7 @@ import com.google.android.gms.location.LocationServices
 import java.util.*
 
 
+
 class Alert : AppCompatActivity() {
     private val MY_PERMISSIONS_REQUEST_LOCATION = 1
     private lateinit var fusedLocationClient: FusedLocationProviderClient
