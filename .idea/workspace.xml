@@ -9,15 +9,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cf6a1939-721a-40bc-b641-9dcc66bcdc3c" name="Changes" comment="sending location by intervals and implemented stop button integrated on the alert button, to stop sending locations.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/rokkha/Alert.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/rokkha/Alert.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_alert.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_alert.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_second.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_second.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/themes.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/themes.xml" afterDir="false" />
-    </list>
+    <list default="true" id="cf6a1939-721a-40bc-b641-9dcc66bcdc3c" name="Changes" comment="changed some UI's" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -209,7 +201,14 @@
       <option name="project" value="LOCAL" />
       <updated>1679658149953</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="changed some UI's">
+      <created>1679748206930</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1679748206930</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -223,7 +222,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/master" />
+                        <option value="origin/rafeed" />
                       </list>
                     </value>
                   </entry>
@@ -238,6 +237,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Fixed issues regarding devices not sending sms" />
     <MESSAGE value="sending location by intervals and implemented stop button integrated on the alert button, to stop sending locations." />
-    <option name="LAST_COMMIT_MESSAGE" value="sending location by intervals and implemented stop button integrated on the alert button, to stop sending locations." />
+    <MESSAGE value="changed some UI's" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed some UI's" />
   </component>
 </project>
