@@ -50,7 +50,7 @@ class Alert : AppCompatActivity() {
         navView.setNavigationItemSelectedListener {
             when(it.itemId){
                 R.id.nav_home -> Toast.makeText(applicationContext,"Home",Toast.LENGTH_SHORT).show()
-                R.id.contacts -> Toast.makeText(applicationContext,"Contacts",Toast.LENGTH_SHORT).show()
+                R.id.contacts -> startActivity(Intent(this, Helper::class.java))
                 R.id.logout -> Toast.makeText(applicationContext,"Logout",Toast.LENGTH_SHORT).show()
             }
             true
@@ -67,11 +67,7 @@ class Alert : AppCompatActivity() {
             }
         }
 
-        val contact = findViewById<Button>(R.id.addcontact)
-        contact.setOnClickListener {
-            val intent = Intent(this, Helper::class.java)
-            startActivity(intent)
-        }
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
