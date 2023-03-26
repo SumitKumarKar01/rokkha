@@ -12,13 +12,17 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.telephony.SmsManager
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.navigation.NavigationView
 import java.util.*
 
 
@@ -29,9 +33,30 @@ class Alert : AppCompatActivity() {
     private var timer: Timer? = null
     private var isSendingLocation = false
     private lateinit var  alertbutton: Button
+    lateinit var toggle: ActionBarDrawerToggle
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alert)
+
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
+        val navView: NavigationView = findViewById(R.id.nav_view)
+        toggle = ActionBarDrawerToggle(this,drawerLayout,R.string.open, R.string.close)
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        navView.setNavigationItemSelectedListener {
+            when(it.itemId){
+                R.id.nav_home -> Toast.makeText(applicationContext,"Home",Toast.LENGTH_SHORT).show()
+                R.id.contacts -> Toast.makeText(applicationContext,"Contacts",Toast.LENGTH_SHORT).show()
+                R.id.logout -> Toast.makeText(applicationContext,"Logout",Toast.LENGTH_SHORT).show()
+            }
+            true
+        }
+
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         alertbutton = findViewById<Button>(R.id.buttonalert)
         alertbutton.setOnClickListener {
@@ -48,6 +73,14 @@ class Alert : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (toggle.onOptionsItemSelected(item)){
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 
     private fun startLocationSending() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
