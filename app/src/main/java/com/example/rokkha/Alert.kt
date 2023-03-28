@@ -24,6 +24,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.navigation.NavigationView
 import java.util.*
+import com.google.firebase.auth.FirebaseAuth
 
 
 
@@ -34,6 +35,7 @@ class Alert : AppCompatActivity() {
     private var isSendingLocation = false
     private lateinit var  alertbutton: Button
     lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var user: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -49,13 +51,12 @@ class Alert : AppCompatActivity() {
 
         navView.setNavigationItemSelectedListener {
             when(it.itemId){
-                R.id.nav_home -> Toast.makeText(applicationContext,"Home",Toast.LENGTH_SHORT).show()
+                R.id.nav_home -> startActivity(Intent(this, Alert::class.java))
                 R.id.contacts -> startActivity(Intent(this, Helper::class.java))
-                R.id.logout -> Toast.makeText(applicationContext,"Logout",Toast.LENGTH_SHORT).show()
+                R.id.logout -> logout()
             }
             true
         }
-
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         alertbutton = findViewById<Button>(R.id.buttonalert)
@@ -161,10 +162,14 @@ class Alert : AppCompatActivity() {
                 }
             }
         }
-
-
-
-
-
+    private fun logout(){
+        user = FirebaseAuth.getInstance()
+        user.signOut()
+        startActivity(
+            Intent(this,MainActivity::class.java)
+        )
+        finish()
 
     }
+
+}

@@ -32,14 +32,19 @@ class SecondActivity : AppCompatActivity() {
         }
 
         binding.btnSignout.setOnClickListener{
-        user.signOut()
-            startActivity(
-                Intent(this,MainActivity::class.java)
-            )
-            finish()
-
+            logout()
         }
 
 
+
     }
+    fun logout(){
+        user.signOut()
+        startActivity(
+            Intent(this,MainActivity::class.java)
+        )
+        finish()
+
+    }
+
 }
