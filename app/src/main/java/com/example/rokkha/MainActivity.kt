@@ -33,8 +33,6 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-
-
     }
 
     private fun registerUser() {
@@ -53,12 +51,11 @@ class MainActivity : AppCompatActivity() {
                         user.signInWithEmailAndPassword(email,password)
                             .addOnCompleteListener {mTask ->
                                 if(mTask.isSuccessful){
-                                    startActivity(Intent(this,SecondActivity::class.java))
+                                    startActivity(Intent(this,Alert::class.java))
                                     finish()
 
                                 } else{
                                     Toast.makeText(this,task.exception!!.message,Toast.LENGTH_SHORT).show()
-
 
                                 }
                             }
