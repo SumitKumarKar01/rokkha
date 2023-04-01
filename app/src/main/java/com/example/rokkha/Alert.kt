@@ -53,6 +53,7 @@ class Alert : AppCompatActivity() {
             when(it.itemId){
                 R.id.nav_home -> startActivity(Intent(this, Alert::class.java))
                 R.id.contacts -> startActivity(Intent(this, Helper::class.java))
+                R.id.time_interval -> startActivity(Intent(this,TimeInterval::class.java))
                 R.id.logout -> logout()
             }
             true

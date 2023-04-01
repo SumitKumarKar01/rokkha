@@ -11,6 +11,10 @@
         android:icon="@drawable/baseline_contact_page_24"
         android:title="Contacts"/>
     <item
+        android:id="@+id/time_interval"
+        android:icon="@drawable/baseline_access_time_24"
+        android:title="Time Interval"/>
+    <item
         android:id="@+id/logout"
         android:icon="@drawable/baseline_logout_24"
         android:title="Logout"/>
