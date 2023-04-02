@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -36,6 +37,7 @@ class Alert : AppCompatActivity() {
     private lateinit var  alertbutton: Button
     lateinit var toggle: ActionBarDrawerToggle
     private lateinit var user: FirebaseAuth
+    private lateinit var sharedPreferences: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -54,7 +56,7 @@ class Alert : AppCompatActivity() {
                 R.id.nav_home -> startActivity(Intent(this, Alert::class.java))
                 R.id.contacts -> startActivity(Intent(this, Helper::class.java))
                 R.id.time_interval -> startActivity(Intent(this,TimeInterval::class.java))
-                R.id.logout -> logout()
+                R.id.logout -> Toast.makeText(this@Alert, getTimeToSharedPerf().toString(), Toast.LENGTH_SHORT).show()
             }
             true
         }
@@ -72,6 +74,7 @@ class Alert : AppCompatActivity() {
 
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (toggle.onOptionsItemSelected(item)){
             return true
@@ -88,7 +91,7 @@ class Alert : AppCompatActivity() {
 
         isSendingLocation = true
         alertbutton.text = "Stop" // change button text to "Stop"
-
+        val timeInterval : Long = getTimeToSharedPerf()
         timer = Timer()
         timer?.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
@@ -109,7 +112,22 @@ class Alert : AppCompatActivity() {
                         }
                     }
             }
-        }, 0, 10000)
+        }, 0, timeInterval)
+    }
+    fun getTimeToSharedPerf(): Long {
+        sharedPreferences= this.getSharedPreferences("RokkhaSharedPrefFile", Context.MODE_PRIVATE)
+        if (sharedPreferences.contains("time_val")){
+            var time = sharedPreferences.getInt("time_val",1)
+            time *= 60 * 1000
+            return time.toLong()
+        }
+        val text = "NO Time Interval Set"
+        Toast.makeText(this@Alert, text, Toast.LENGTH_SHORT).show()
+        return 60000
+
+
+
+
     }
 
     private fun stopLocationSending() {
