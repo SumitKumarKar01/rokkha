@@ -56,7 +56,7 @@ class Alert : AppCompatActivity() {
                 R.id.nav_home -> startActivity(Intent(this, Alert::class.java))
                 R.id.contacts -> startActivity(Intent(this, Helper::class.java))
                 R.id.time_interval -> startActivity(Intent(this,TimeInterval::class.java))
-                R.id.logout -> Toast.makeText(this@Alert, getTimeToSharedPerf().toString(), Toast.LENGTH_SHORT).show()
+                R.id.logout -> logout()
             }
             true
         }
