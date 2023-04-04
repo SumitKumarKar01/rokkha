@@ -1,20 +1,24 @@
 package com.example.rokkha
 
 import android.Manifest
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.telephony.SmsManager
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -23,24 +27,39 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.navigation.NavigationView
-import java.util.*
 import com.google.firebase.auth.FirebaseAuth
-
+import java.util.*
 
 
 class Alert : AppCompatActivity() {
     private val MY_PERMISSIONS_REQUEST_LOCATION = 1
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
     private var timer: Timer? = null
     private var isSendingLocation = false
+
     private lateinit var  alertbutton: Button
     lateinit var toggle: ActionBarDrawerToggle
+
     private lateinit var user: FirebaseAuth
+    
+    private lateinit var sharedPreferences: SharedPreferences
+
+    private lateinit var permissionLauncher : ActivityResultLauncher<Array<String>>
+    private var isSMSPermissionGranted = false
+    private var isLocationPermissionGranted = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alert)
 
+        drawNavUI()
+        alertBtnLocationSend()
+        assignPermission()
+
+    }
+    private fun drawNavUI(){
         val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         toggle = ActionBarDrawerToggle(this,drawerLayout,R.string.open, R.string.close)
@@ -53,22 +72,13 @@ class Alert : AppCompatActivity() {
             when(it.itemId){
                 R.id.nav_home -> startActivity(Intent(this, Alert::class.java))
                 R.id.contacts -> startActivity(Intent(this, Helper::class.java))
+                R.id.time_interval -> startActivity(Intent(this,TimeInterval::class.java))
                 R.id.logout -> logout()
             }
             true
+
+
         }
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        alertbutton = findViewById<Button>(R.id.buttonalert)
-        alertbutton.setOnClickListener {
-            if (!isSendingLocation) {
-                startLocationSending()
-            } else {
-                stopLocationSending()
-            }
-        }
-
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -79,15 +89,36 @@ class Alert : AppCompatActivity() {
     }
 
 
+    private fun assignPermission(){
+        permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()){
+                permissions ->
+            isSMSPermissionGranted = permissions[Manifest.permission.SEND_SMS] ?: isSMSPermissionGranted
+            isLocationPermissionGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: isLocationPermissionGranted
+        }
+    }
+    private fun alertBtnLocationSend(){
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        alertbutton = findViewById<Button>(R.id.buttonalert)
+        alertbutton.setOnClickListener {
+            if (!isSendingLocation) {
+                startLocationSending()
+            } else {
+                stopLocationSending()
+            }
+        }
+    }
+
     private fun startLocationSending() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), MY_PERMISSIONS_REQUEST_LOCATION)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            ||ContextCompat.checkSelfPermission(this,Manifest.permission.SEND_SMS)!= PackageManager.PERMISSION_GRANTED) {
+            requestPermissionPage()
             return
         }
 
         isSendingLocation = true
         alertbutton.text = "Stop" // change button text to "Stop"
-
+        val timeInterval : Long = getTimeToSharedPerf()
         timer = Timer()
         timer?.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
@@ -108,14 +139,7 @@ class Alert : AppCompatActivity() {
                         }
                     }
             }
-        }, 0, 10000)
-    }
-
-    private fun stopLocationSending() {
-        isSendingLocation = false
-        alertbutton.text = "Alert" // change button text back to "Alert"
-
-        timer?.cancel() // stop the location sending timer
+        }, 0, timeInterval)
     }
     private fun sendLocationToContacts(location: Location) {
         val message =
@@ -151,6 +175,26 @@ class Alert : AppCompatActivity() {
         }
     }
 
+    private fun getTimeToSharedPerf(): Long {
+        sharedPreferences= this.getSharedPreferences("RokkhaSharedPrefFile", Context.MODE_PRIVATE)
+        if (sharedPreferences.contains("time_val")){
+            var time = sharedPreferences.getInt("time_val",1)
+            time *= 60 * 1000
+            return time.toLong()
+        }
+        val text = "NO Time Interval Set"
+        Toast.makeText(this@Alert, text, Toast.LENGTH_SHORT).show()
+        return 60000
+
+    }
+    private fun stopLocationSending() {
+        isSendingLocation = false
+        alertbutton.text = "Alert" // change button text back to "Alert"
+
+        timer?.cancel() // stop the location sending timer
+    }
+
+
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -161,7 +205,42 @@ class Alert : AppCompatActivity() {
                     }
                 }
             }
+    }
+
+
+    private fun requestPermission(){
+        isLocationPermissionGranted = ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        isSMSPermissionGranted = ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.SEND_SMS
+        ) == PackageManager.PERMISSION_GRANTED
+
+
+        val permissionRequest : MutableList<String> = ArrayList()
+
+        if (!isSMSPermissionGranted){
+            permissionRequest.add(Manifest.permission.SEND_SMS)
         }
+        if (!isLocationPermissionGranted){
+            permissionRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+        if(permissionRequest.isNotEmpty()){
+            permissionLauncher.launch(permissionRequest.toTypedArray())
+        }
+
+    }
+    private fun requestPermissionPage() {
+        val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+        val uri = Uri.fromParts("package", packageName, null)
+        intent.data = uri
+        startActivity(intent)
+
+
+    }
     private fun logout(){
         user = FirebaseAuth.getInstance()
         user.signOut()
