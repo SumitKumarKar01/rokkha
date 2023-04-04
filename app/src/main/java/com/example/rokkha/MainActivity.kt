@@ -1,9 +1,13 @@
 package com.example.rokkha
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import com.example.rokkha.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
 
@@ -12,10 +16,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var user: FirebaseAuth
 
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
+
         user = FirebaseAuth.getInstance()
 
         checkIfUserIsLogged()
@@ -28,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     }
     private fun checkIfUserIsLogged(){
         if (user.currentUser !=null){
-            startActivity(Intent(this,SecondActivity::class.java))
+            startActivity(Intent(this,Alert::class.java))
             finish()
 
         }
@@ -44,7 +53,7 @@ class MainActivity : AppCompatActivity() {
                 .addOnCompleteListener(MainActivity()){task ->
                     if (task.isSuccessful){
                         Toast.makeText(this,"User added successfully",Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this,SecondActivity::class.java))
+                    startActivity(Intent(this,Alert::class.java))
                         finish()
 
                     }else{
@@ -68,6 +77,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this,"Email and password cannot be empty",Toast.LENGTH_SHORT).show()
         }
     }
+
 
 
 }
