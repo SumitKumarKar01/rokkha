@@ -48,7 +48,6 @@ class Alert : AppCompatActivity() {
     private lateinit var permissionLauncher : ActivityResultLauncher<Array<String>>
     private var isSMSPermissionGranted = false
     private var isLocationPermissionGranted = false
-    private var isFGServicePermissionGranted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
