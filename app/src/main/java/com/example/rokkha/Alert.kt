@@ -146,7 +146,11 @@ class Alert : AppCompatActivity() {
             "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}"
         val dataBase: SqliteDatabase = SqliteDatabase(this)
         val allContacts = dataBase.listContacts()
-        val smsMgr: SmsManager = SmsManager.getDefault()
+        val smsMgr: SmsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            this.getSystemService(SmsManager::class.java)
+        } else {
+            SmsManager.getDefault()
+        }
         for (contact in allContacts) {
             try {
                 smsMgr.sendTextMessage(
