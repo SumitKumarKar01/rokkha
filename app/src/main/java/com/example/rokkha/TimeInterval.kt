@@ -40,6 +40,6 @@ class TimeInterval : AppCompatActivity() {
         val editor = sharedPreferences.edit()
         editor.putInt("time_val",time)
         editor.apply()
-        editor.commit()
+       // editor.commit()
     }
 }

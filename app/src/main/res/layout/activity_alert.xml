@@ -21,13 +21,12 @@
             android:backgroundTint="#7986CB"
             android:backgroundTintMode="multiply"
             android:elegantTextHeight="false"
-            android:fadingEdge="none"
+
             android:fontFamily="sans-serif-condensed"
-            android:freezesText="false"
-            android:requiresFadingEdge="none"
+
             android:singleLine="false"
             android:soundEffectsEnabled="true"
-            android:text="ALERT"
+            android:text="Alert"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColorLink="#4DD0E1"
             app:layout_constraintBottom_toBottomOf="parent"
