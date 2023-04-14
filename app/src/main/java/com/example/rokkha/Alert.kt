@@ -30,6 +30,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -56,6 +57,9 @@ class Alert : AppCompatActivity() {
 
     var latitude:Double = 0.0
     var longitude:Double = 0.0
+
+    val priority = Priority.PRIORITY_HIGH_ACCURACY
+    val cancellationTokenSource = CancellationTokenSource()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -195,21 +199,18 @@ class Alert : AppCompatActivity() {
                 ) {
                     return
                 }
-                fusedLocationClient.lastLocation
-                    .addOnSuccessListener { location: Location? ->
+                fusedLocationClient.getCurrentLocation(priority, cancellationTokenSource.token)
+                    .addOnSuccessListener { location:Location? ->
                         if (location != null) {
                             latitude = location.latitude
                             longitude = location.longitude
                             sendLocationToContacts(latitude,longitude)
                         }
                         else{
-                            Toast.makeText(this@Alert,"Null Loc",Toast.LENGTH_SHORT).show()
-                            sendLocationToContacts(50.0,50.0)
+                            Toast.makeText(this@Alert,"Please try opening Google Maps And Retry",Toast.LENGTH_LONG).show()
+
                         }
                     }
-                fusedLocationClient.lastLocation.addOnFailureListener(){
-                    Toast.makeText(this@Alert,"Fail SEND LOC FUN",Toast.LENGTH_SHORT).show()
-                }
             }
         }, 0, timeInterval)
     }
@@ -262,7 +263,7 @@ class Alert : AppCompatActivity() {
     private fun stopLocationSending() {
         isSendingLocation = false
         alertbutton.text = "Alert" // change button text back to "Alert"
-
+        cancellationTokenSource.token
         timer?.cancel() // stop the location sending timer
     }
 
