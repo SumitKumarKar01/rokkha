@@ -141,7 +141,7 @@ class Alert : AppCompatActivity() {
                             // Cast to a resolvable exception.
                             val resolvable: ResolvableApiException = exception as ResolvableApiException
                             // Show the dialog by calling startResolutionForResult(),
-                            // and check the result in onActivityResult().
+                            // and check the result in onActivityResult()
                             resolvable.startResolutionForResult(
                                 this, LocationRequest.PRIORITY_HIGH_ACCURACY
                             )
