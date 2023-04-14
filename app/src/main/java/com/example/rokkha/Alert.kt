@@ -132,7 +132,7 @@ class Alert : AppCompatActivity() {
         result.addOnCompleteListener { task ->
             try {
                 val response = task.getResult(ApiException::class.java)
-                // All location settings are satisfied. The client can initialize location
+                // All location settings are satisfied. The client can initialize location,
                 // requests here.
             } catch (exception: ApiException) {
                 when (exception.statusCode) {
