@@ -1,9 +1,11 @@
 package com.example.rokkha
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.IntentSender
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
@@ -13,6 +15,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.telephony.SmsManager
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.Toast
@@ -24,8 +27,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import java.util.*
@@ -49,6 +55,13 @@ class Alert : AppCompatActivity() {
     private var isSMSPermissionGranted = false
     private var isLocationPermissionGranted = false
 
+    var latitude:Double = 0.0
+    var longitude:Double = 0.0
+
+    val priority = Priority.PRIORITY_HIGH_ACCURACY
+    val cancellationTokenSource = CancellationTokenSource()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -56,8 +69,21 @@ class Alert : AppCompatActivity() {
 
         drawNavUI()
         alertBtnLocationSend()
+        showLocationPrompt()
         assignPermission()
 
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            LocationRequest.PRIORITY_HIGH_ACCURACY -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    Log.e("Status: ","On")
+                } else {
+                    Log.e("Status: ","Off")
+                }
+            }
+        }
     }
     private fun drawNavUI(){
         val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
@@ -96,6 +122,47 @@ class Alert : AppCompatActivity() {
             isLocationPermissionGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: isLocationPermissionGranted
         }
     }
+    private fun showLocationPrompt() {
+        val locationRequest = LocationRequest.create()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+
+        val result: Task<LocationSettingsResponse> = LocationServices.getSettingsClient(this).checkLocationSettings(builder.build())
+
+        result.addOnCompleteListener { task ->
+            try {
+                val response = task.getResult(ApiException::class.java)
+                // All location settings are satisfied. The client can initialize location
+                // requests here.
+            } catch (exception: ApiException) {
+                when (exception.statusCode) {
+                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
+                        try {
+                            // Cast to a resolvable exception.
+                            val resolvable: ResolvableApiException = exception as ResolvableApiException
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            resolvable.startResolutionForResult(
+                                this, LocationRequest.PRIORITY_HIGH_ACCURACY
+                            )
+                        } catch (e: IntentSender.SendIntentException) {
+                            // Ignore the error.
+                        } catch (e: ClassCastException) {
+                            // Ignore, should be an impossible error.
+                        }
+                    }
+                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
+                        // Location settings are not satisfied. But could be fixed by showing the
+                        // user a dialog.
+
+                        // Location settings are not satisfied. However, we have no way to fix the
+                        // settings so we won't show the dialog.
+                    }
+                }
+            }
+        }
+    }
+
     private fun alertBtnLocationSend(){
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         alertbutton = findViewById<Button>(R.id.buttonalert)
@@ -132,18 +199,24 @@ class Alert : AppCompatActivity() {
                 ) {
                     return
                 }
-                fusedLocationClient.lastLocation
-                    .addOnSuccessListener { location: Location? ->
-                        location?.let {
-                            sendLocationToContacts(it)
+                fusedLocationClient.getCurrentLocation(priority, cancellationTokenSource.token)
+                    .addOnSuccessListener { location:Location? ->
+                        if (location != null) {
+                            latitude = location.latitude
+                            longitude = location.longitude
+                            sendLocationToContacts(latitude,longitude)
+                        }
+                        else{
+                            Toast.makeText(this@Alert,"Please try opening Google Maps And Retry",Toast.LENGTH_LONG).show()
+
                         }
                     }
             }
         }, 0, timeInterval)
     }
-    private fun sendLocationToContacts(location: Location) {
+    private fun sendLocationToContacts(latitude:Double, longitude:Double) {
         val message =
-            "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}"
+            "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}"
         val dataBase: SqliteDatabase = SqliteDatabase(this)
         val allContacts = dataBase.listContacts()
         val smsMgr: SmsManager = SmsManager.getDefault()
@@ -190,7 +263,7 @@ class Alert : AppCompatActivity() {
     private fun stopLocationSending() {
         isSendingLocation = false
         alertbutton.text = "Alert" // change button text back to "Alert"
-
+        cancellationTokenSource.token
         timer?.cancel() // stop the location sending timer
     }
 
