@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
                 .addOnCompleteListener(MainActivity()){task ->
                     if (task.isSuccessful){
                         Toast.makeText(this,"User added successfully",Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this,Alert::class.java))
+                        startActivity(Intent(this,Alert::class.java))
                         finish()
 
                     }else{

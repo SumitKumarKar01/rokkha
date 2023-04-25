@@ -2,6 +2,7 @@ package com.example.rokkha
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
@@ -9,10 +10,12 @@ import android.content.IntentSender
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.telephony.SmsManager
 import android.util.Log
@@ -34,6 +37,8 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+
 import java.util.*
 
 
@@ -63,16 +68,48 @@ class Alert : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alert)
+
+        // Initialize Firebase Auth
+        user = FirebaseAuth.getInstance()
+
+        // Initialize SharedPreferences to store the last known location
+        sharedPreferences = getSharedPreferences("MyPref", Context.MODE_PRIVATE)
 
         drawNavUI()
         alertBtnLocationSend()
         showLocationPrompt()
         assignPermission()
 
+        // Retrieve the last known location from SharedPreferences and save it to Firebase database
+        val latitude = sharedPreferences.getFloat("latitude", 0.0f)
+        val longitude = sharedPreferences.getFloat("longitude", 0.0f)
+        val timestamp = sharedPreferences.getLong("timestamp", 0L)
+        if (latitude != 0.0f && longitude != 0.0f && timestamp != 0L) {
+            saveLocationToFirebase(latitude.toDouble(), longitude.toDouble(), timestamp)
+        }
     }
+    data class Location(val latitude: Double, val longitude: Double, val timestamp: Long)
+    private fun saveLocationToFirebase(latitude: Double, longitude: Double, timestamp: Long) {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val userId = user.uid
+            val locationRef = FirebaseDatabase.getInstance().getReference("locations").child(userId)
+            val location = Location(latitude, longitude, timestamp)
+            locationRef.setValue(location)
+                .addOnSuccessListener {
+                    Log.d(TAG, "Location saved successfully")
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Failed to save location: $e")
+                }
+        }
+    }
+    
+            
+
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
@@ -163,14 +200,78 @@ class Alert : AppCompatActivity() {
         }
     }
 
-    private fun alertBtnLocationSend(){
+    private fun alertBtnLocationSend() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         alertbutton = findViewById<Button>(R.id.buttonalert)
+
         alertbutton.setOnClickListener {
-            if (!isSendingLocation) {
-                startLocationSending()
+
+            if (isSMSPermissionGranted && isLocationPermissionGranted) {
+
+                // Check if the location provider is enabled
+                val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    Toast.makeText(this, "Please turn on location services", Toast.LENGTH_SHORT)
+                        .show()
+                    return@setOnClickListener
+                }
+
+                // Get the current location and save it to SharedPreferences
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return@setOnClickListener
+                }
+                val addOnFailureListener =
+                    fusedLocationClient.getCurrentLocation(priority, cancellationTokenSource.token)
+                        .addOnSuccessListener { location: Location? ->
+                            if (location != null) {
+                                latitude = location.latitude
+                                longitude = location.longitude
+
+                                // Save the current location to SharedPreferences
+                                val editor = sharedPreferences.edit()
+                                editor.putFloat("latitude", latitude.toFloat())
+                                editor.putFloat("longitude", longitude.toFloat())
+                                editor.putLong("timestamp", System.currentTimeMillis())
+                                editor.apply()
+
+                                // Save the current location to Firebase database
+                                saveLocationToFirebase(
+                                    latitude,
+                                    longitude,
+                                    System.currentTimeMillis()
+                                )
+                            }
+                        }
+                        .addOnFailureListener { e: Exception ->
+                            Toast.makeText(
+                                this,
+                                "Failed to get location: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
             } else {
-                stopLocationSending()
+                // Request permission if not granted
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.SEND_SMS,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                )
             }
         }
     }
@@ -178,42 +279,76 @@ class Alert : AppCompatActivity() {
     private fun startLocationSending() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            ||ContextCompat.checkSelfPermission(this,Manifest.permission.SEND_SMS)!= PackageManager.PERMISSION_GRANTED) {
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissionPage()
             return
         }
 
         isSendingLocation = true
         alertbutton.text = "Stop" // change button text to "Stop"
-        val timeInterval : Long = getTimeToSharedPerf()
+        val timeInterval: Long = getTimeToSharedPerf()
         timer = Timer()
         timer?.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                if (ActivityCompat.checkSelfPermission(
-                        this@Alert,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                        this@Alert,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    return
-                }
-                fusedLocationClient.getCurrentLocation(priority, cancellationTokenSource.token)
-                    .addOnSuccessListener { location:Location? ->
-                        if (location != null) {
-                            latitude = location.latitude
-                            longitude = location.longitude
-                            sendLocationToContacts(latitude,longitude)
-                        }
-                        else{
-                            Toast.makeText(this@Alert,"Please try opening Google Maps And Retry",Toast.LENGTH_LONG).show()
-
-                        }
-                    }
+                getLocationUpdates(this@Alert, timeInterval, LocationRequest.PRIORITY_HIGH_ACCURACY)
             }
         }, 0, timeInterval)
+
     }
+
+    private fun getLocationUpdates(context: Context, timeInterval: Long, priority: Int) {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+        // Check if location permissions are granted
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Toast.makeText(context, "Location permission not granted", Toast.LENGTH_LONG)
+                .show()
+            return
+        }
+
+        // Get the last known location using GPS provider
+        val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+
+        // If the last known location is available, use it
+        if (lastKnownLocation != null) {
+            val latitude = lastKnownLocation.latitude
+            val longitude = lastKnownLocation.longitude
+            sendLocationToContacts(latitude, longitude)
+        } else {
+            // If the last known location is not available, try to get the current location using Fused Location Provider
+            fusedLocationClient.getCurrentLocation(priority, CancellationTokenSource().token)
+                .addOnSuccessListener { location: Location? ->
+                    if (location != null) {
+                        val latitude = location.latitude
+                        val longitude = location.longitude
+                        sendLocationToContacts(latitude, longitude)
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Unable to get current location",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(
+                        context,
+                        "Location update failed: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+        }
+    }
+
     private fun sendLocationToContacts(latitude:Double, longitude:Double) {
         val message =
             "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}"
@@ -325,3 +460,29 @@ class Alert : AppCompatActivity() {
     }
 
 }
+
+private fun Any.addOnFailureListener(function: (Exception) -> Unit) {
+
+}
+
+private fun <TResult> Task<TResult>.addOnSuccessListener(function: (Alert.Location?) -> Unit) {
+
+}
+
+private fun TimerTask.onLocationResult(it: LocationResult) {
+
+}
+
+private fun Any.addOnSuccessListener(function: (location: Location?) -> Unit): Task<Location> {
+    val locationTask = this as Task<Location>
+    locationTask.addOnSuccessListener { location ->
+        function(location)
+    }
+    return locationTask
+}
+
+private fun Timer.scheduleAtFixedRate(timerTask: TimerTask) {
+
+}
+
+
