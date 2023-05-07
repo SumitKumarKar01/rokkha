@@ -34,6 +34,8 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
@@ -69,7 +71,6 @@ class Alert : AppCompatActivity() {
     val priority = Priority.PRIORITY_HIGH_ACCURACY
     val cancellationTokenSource = CancellationTokenSource()
 
-    var places = mutableListOf<Place>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -222,7 +223,7 @@ class Alert : AppCompatActivity() {
                             formatedTime = simpleTime.format(Date())
                             //Location Data with Date and Time
                             place = Place(latitude,longitude, formatedTime, formatedDate)
-                            places.add(place)
+                            Places.places.add(place)
 
                             sendLocationToContacts(latitude,longitude)
                         }
@@ -282,12 +283,10 @@ class Alert : AppCompatActivity() {
     }
     private fun stopLocationSending() {
         //TODO::Just for Debugging
-        for(place in places){
-            println("Current Date is: ${place.date}")
-            println("Current Time is: ${place.time}")
-            println("Current lat is: ${place.lat}")
-            println("Current lng is: ${place.lng}")
-        }
+        val gsonPretty = GsonBuilder().setPrettyPrinting().create()
+        var jsonPlaces : String? = gsonPretty.toJson(Places.places)
+        println(jsonPlaces)
+
         isSendingLocation = false
         alertbutton.text = "Alert" // change button text back to "Alert"
         cancellationTokenSource.token
@@ -350,5 +349,6 @@ class Alert : AppCompatActivity() {
         finish()
 
     }
+
 
 }
