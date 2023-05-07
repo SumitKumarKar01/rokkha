@@ -34,6 +34,8 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.*
 
 
@@ -58,8 +60,16 @@ class Alert : AppCompatActivity() {
     var latitude:Double = 0.0
     var longitude:Double = 0.0
 
+    lateinit var formatedDate:String
+    lateinit var formatedTime:String
+
+    lateinit var place : Place
+
+
     val priority = Priority.PRIORITY_HIGH_ACCURACY
     val cancellationTokenSource = CancellationTokenSource()
+
+    var places = mutableListOf<Place>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -189,6 +199,7 @@ class Alert : AppCompatActivity() {
         val timeInterval : Long = getTimeToSharedPerf()
         timer = Timer()
         timer?.scheduleAtFixedRate(object : TimerTask() {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun run() {
                 if (ActivityCompat.checkSelfPermission(
                         this@Alert,
@@ -205,6 +216,14 @@ class Alert : AppCompatActivity() {
                         if (location != null) {
                             latitude = location.latitude
                             longitude = location.longitude
+                            val simpleDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+                            formatedDate = simpleDate.format(Date())
+                            val simpleTime = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
+                            formatedTime = simpleTime.format(Date())
+                            //Location Data with Date and Time
+                            place = Place(latitude,longitude, formatedTime, formatedDate)
+                            places.add(place)
+
                             sendLocationToContacts(latitude,longitude)
                         }
                         else{
@@ -262,6 +281,13 @@ class Alert : AppCompatActivity() {
 
     }
     private fun stopLocationSending() {
+        //TODO::Just for Debugging
+        for(place in places){
+            println("Current Date is: ${place.date}")
+            println("Current Time is: ${place.time}")
+            println("Current lat is: ${place.lat}")
+            println("Current lng is: ${place.lng}")
+        }
         isSendingLocation = false
         alertbutton.text = "Alert" // change button text back to "Alert"
         cancellationTokenSource.token
