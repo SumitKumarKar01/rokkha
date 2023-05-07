@@ -41,7 +41,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
 
         // Add a marker in Sydney and move the camera
-        addMarker(23.8861921,90.4041666,"6:30")
+        for(place in Places.places){
+                println("Current Date is: ${place.date}")
+                println("Current Time is: ${place.time}")
+                println("Current lat is: ${place.lat}")
+                println("Current lng is: ${place.lng}")
+
+            addMarker(place.lat,place.lng,place.time)
+        }
 
     }
     private fun addMarker(lat:Double, long:Double, title:String){
