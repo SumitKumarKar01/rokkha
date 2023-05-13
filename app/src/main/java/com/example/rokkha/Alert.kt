@@ -88,7 +88,7 @@ class Alert : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             LocationRequest.PRIORITY_HIGH_ACCURACY -> {
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == RESULT_OK) {
                     Log.e("Status: ","On")
                 } else {
                     Log.e("Status: ","Off")
@@ -270,7 +270,7 @@ class Alert : AppCompatActivity() {
     }
 
     private fun getTimeToSharedPerf(): Long {
-        sharedPreferences= this.getSharedPreferences("RokkhaSharedPrefFile", Context.MODE_PRIVATE)
+        sharedPreferences= this.getSharedPreferences("RokkhaSharedPrefFile", MODE_PRIVATE)
         if (sharedPreferences.contains("time_val")){
             var time = sharedPreferences.getInt("time_val",1)
             time *= 60 * 1000
@@ -310,11 +310,11 @@ class Alert : AppCompatActivity() {
     private fun requestPermission(){
         isLocationPermissionGranted = ContextCompat.checkSelfPermission(
             this,
-            android.Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
         isSMSPermissionGranted = ContextCompat.checkSelfPermission(
             this,
-            android.Manifest.permission.SEND_SMS
+            Manifest.permission.SEND_SMS
         ) == PackageManager.PERMISSION_GRANTED
 
 
