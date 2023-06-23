@@ -237,7 +237,7 @@ class Alert : AppCompatActivity() {
     }
     private fun sendLocationToContacts(latitude:Double, longitude:Double) {
         val message =
-            "I am in danger!! Here's my location: https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}"
+            "I am in danger!! Here's my location https://www.google.com/maps/search/?api=1&query=${latitude}%2C${longitude}"
         val dataBase: SqliteDatabase = SqliteDatabase(this)
         val allContacts = dataBase.listContacts()
         val smsMgr: SmsManager = SmsManager.getDefault()
