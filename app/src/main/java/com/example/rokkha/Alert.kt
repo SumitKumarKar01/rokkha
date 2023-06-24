@@ -34,10 +34,8 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.*
 
 
@@ -48,8 +46,8 @@ class Alert : AppCompatActivity() {
     private var timer: Timer? = null
     private var isSendingLocation = false
 
-    private lateinit var  alertbutton: Button
-    lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var  alertButton: Button
+    private lateinit var toggle: ActionBarDrawerToggle
 
     private lateinit var user: FirebaseAuth
     
@@ -62,8 +60,8 @@ class Alert : AppCompatActivity() {
     var latitude:Double = 0.0
     var longitude:Double = 0.0
 
-    lateinit var formatedDate:String
-    lateinit var formatedTime:String
+    lateinit var formattedDate:String
+    lateinit var formattedTime:String
 
     lateinit var place : Place
 
@@ -84,19 +82,18 @@ class Alert : AppCompatActivity() {
         assignPermission()
 
     }
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            LocationRequest.PRIORITY_HIGH_ACCURACY -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    Log.e("Status: ","On")
-                } else {
-                    Log.e("Status: ","Off")
-                }
-            }
-        }
-    }
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        when (requestCode) {
+//            LocationRequest.PRIORITY_HIGH_ACCURACY -> {
+//                if (resultCode == Activity.RESULT_OK) {
+//                    Log.e("Status: ","On")
+//                } else {
+//                    Log.e("Status: ","Off")
+//                }
+//            }
+//        }
+//    }
     private fun drawNavUI(){
         val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
         val navView: NavigationView = findViewById(R.id.nav_view)
@@ -136,15 +133,17 @@ class Alert : AppCompatActivity() {
         }
     }
     private fun showLocationPrompt() {
-        val locationRequest = LocationRequest.create()
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        var locationRequest = LocationRequest.Builder(60000)
+            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+            .build()
 
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
         val result: Task<LocationSettingsResponse> = LocationServices.getSettingsClient(this).checkLocationSettings(builder.build())
 
         result.addOnCompleteListener { task ->
             try {
-                val response = task.getResult(ApiException::class.java)
+                task.getResult(ApiException::class.java)
                 // All location settings are satisfied. The client can initialize location,
                 // requests here.
             } catch (exception: ApiException) {
@@ -156,7 +155,7 @@ class Alert : AppCompatActivity() {
                             // Show the dialog by calling startResolutionForResult(),
                             // and check the result in onActivityResult()
                             resolvable.startResolutionForResult(
-                                this, LocationRequest.PRIORITY_HIGH_ACCURACY
+                                this, Priority.PRIORITY_HIGH_ACCURACY
                             )
                         } catch (e: IntentSender.SendIntentException) {
                             // Ignore the error.
@@ -178,8 +177,8 @@ class Alert : AppCompatActivity() {
 
     private fun alertBtnLocationSend(){
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        alertbutton = findViewById<Button>(R.id.buttonalert)
-        alertbutton.setOnClickListener {
+        alertButton = findViewById(R.id.buttonalert)
+        alertButton.setOnClickListener {
             if (!isSendingLocation) {
                 startLocationSending()
             } else {
@@ -197,7 +196,7 @@ class Alert : AppCompatActivity() {
         }
 
         isSendingLocation = true
-        alertbutton.text = "Stop" // change button text to "Stop"
+        alertButton.text = "Stop" // change button text to "Stop"
         val timeInterval : Long = getTimeToSharedPerf()
         timer = Timer()
         timer?.scheduleAtFixedRate(object : TimerTask() {
@@ -219,11 +218,11 @@ class Alert : AppCompatActivity() {
                             latitude = location.latitude
                             longitude = location.longitude
                             val simpleDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
-                            formatedDate = simpleDate.format(Date())
+                            formattedDate = simpleDate.format(Date())
                             val simpleTime = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
-                            formatedTime = simpleTime.format(Date())
+                            formattedTime = simpleTime.format(Date())
                             //Location Data with Date and Time
-                            place = Place(latitude,longitude, formatedTime, formatedDate)
+                            place = Place(latitude,longitude, formattedTime, formattedDate)
                             Places.places.add(place)
 
                             sendLocationToContacts(latitude,longitude)
@@ -239,7 +238,7 @@ class Alert : AppCompatActivity() {
     private fun sendLocationToContacts(latitude:Double, longitude:Double) {
         val message =
             "I am in danger!! Here's my location https://www.google.com/maps/search/?api=1&query=${latitude}%2C${longitude}"
-        val dataBase: SqliteDatabase = SqliteDatabase(this)
+        val dataBase = SqliteDatabase(this)
         val allContacts = dataBase.listContacts()
         val smsMgr: SmsManager = SmsManager.getDefault()
         for (contact in allContacts) {
@@ -285,11 +284,11 @@ class Alert : AppCompatActivity() {
     private fun stopLocationSending() {
         //TODO::Just for Debugging
         val gsonPretty = GsonBuilder().setPrettyPrinting().create()
-        var jsonPlaces : String? = gsonPretty.toJson(Places.places)
+        val jsonPlaces : String? = gsonPretty.toJson(Places.places)
         println(jsonPlaces)
 
         isSendingLocation = false
-        alertbutton.text = "Alert" // change button text back to "Alert"
+        alertButton.text = "Alert" // change button text back to "Alert"
         cancellationTokenSource.token
         timer?.cancel() // stop the location sending timer
     }
@@ -308,30 +307,30 @@ class Alert : AppCompatActivity() {
     }
 
 
-    private fun requestPermission(){
-        isLocationPermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            android.Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        isSMSPermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            android.Manifest.permission.SEND_SMS
-        ) == PackageManager.PERMISSION_GRANTED
-
-
-        val permissionRequest : MutableList<String> = ArrayList()
-
-        if (!isSMSPermissionGranted){
-            permissionRequest.add(Manifest.permission.SEND_SMS)
-        }
-        if (!isLocationPermissionGranted){
-            permissionRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-        if(permissionRequest.isNotEmpty()){
-            permissionLauncher.launch(permissionRequest.toTypedArray())
-        }
-
-    }
+//    private fun requestPermission(){
+//        isLocationPermissionGranted = ContextCompat.checkSelfPermission(
+//            this,
+//            Manifest.permission.ACCESS_FINE_LOCATION
+//        ) == PackageManager.PERMISSION_GRANTED
+//        isSMSPermissionGranted = ContextCompat.checkSelfPermission(
+//            this,
+//            Manifest.permission.SEND_SMS
+//        ) == PackageManager.PERMISSION_GRANTED
+//
+//
+//        val permissionRequest : MutableList<String> = ArrayList()
+//
+//        if (!isSMSPermissionGranted){
+//            permissionRequest.add(Manifest.permission.SEND_SMS)
+//        }
+//        if (!isLocationPermissionGranted){
+//            permissionRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+//        }
+//        if(permissionRequest.isNotEmpty()){
+//            permissionLauncher.launch(permissionRequest.toTypedArray())
+//        }
+//
+//    }
     private fun requestPermissionPage() {
         val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK)

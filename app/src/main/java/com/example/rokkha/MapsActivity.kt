@@ -53,6 +53,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
     private fun addMarker(lat:Double, long:Double, title:String){
         mMap.addMarker(MarkerOptions().position(LatLng(lat,long)).title(title))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(lat,long)))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat,long), 18.0F))
     }
 }
