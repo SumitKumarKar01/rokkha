@@ -1,14 +1,10 @@
-package com.example.rokkha
+package bd.com.sumit.rokkha
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
-import com.example.rokkha.databinding.ActivityMainBinding
+import bd.com.sumit.rokkha.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {

@@ -1,4 +1,4 @@
-package com.example.rokkha
+package bd.com.sumit.rokkha
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
-import com.example.rokkha.databinding.ActivityTimeIntervalBinding
+import bd.com.sumit.rokkha.databinding.ActivityTimeIntervalBinding
 
 class TimeInterval : AppCompatActivity() {
     private lateinit var binding: ActivityTimeIntervalBinding

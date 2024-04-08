@@ -1,4 +1,4 @@
-package com.example.rokkha
+package bd.com.sumit.rokkha
 
 class Place(
     val lat: Double,

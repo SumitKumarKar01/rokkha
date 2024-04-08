@@ -1,4 +1,4 @@
-package com.example.rokkha
+package bd.com.sumit.rokkha
 
 import org.junit.Test
 

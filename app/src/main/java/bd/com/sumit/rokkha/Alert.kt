@@ -1,7 +1,6 @@
-package com.example.rokkha
+package bd.com.sumit.rokkha
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
@@ -15,7 +14,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.telephony.SmsManager
-import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.Toast

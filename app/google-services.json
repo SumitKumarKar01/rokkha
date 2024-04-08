@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "1059323396145",
-    "project_id": "rokkha-95728",
-    "storage_bucket": "rokkha-95728.appspot.com"
+    "project_number": "926920767214",
+    "project_id": "rokkha-1b516",
+    "storage_bucket": "rokkha-1b516.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1059323396145:android:a6d0e0b8397af83fae1510",
+        "mobilesdk_app_id": "1:926920767214:android:0392209f7264eaae6525ff",
         "android_client_info": {
-          "package_name": "com.example.rokkha"
+          "package_name": "bd.com.sumit.rokkha"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "1059323396145-bqdlot9n17t95ed7u4nnjo7omdh61ab9.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCcpR9xQUj8ZegYUhdQY6PJzIn7421dMlQ"
+          "current_key": "AIzaSyCvxgMA2AqlBREbwXQeh4NpekKrDBMyWio"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1059323396145-bqdlot9n17t95ed7u4nnjo7omdh61ab9.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
