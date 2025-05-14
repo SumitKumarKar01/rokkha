@@ -1,4 +1,4 @@
-# rokkha
+# Rokkha: Enabling Offline Emergency Location Sharing via SMS
 The primary objective of this application is to facilitate the swift sharing of users' locations with trusted contacts when they feel vulnerable, with a minimal number of steps. Recognizing the urgent nature of such situations, the app has been meticulously designed to enable users to activate location sharing with just a single button press.
 
 To begin using the app, users must sign up for a new account by providing their email address and setting a password. During the app's initial launch, users are prompted to grant permissions for GPS and SMS functionalities. Subsequently, users can add the phone number of their chosen loved one and specify the desired time interval for location sharing, as illustrated in Figure 5.1.
